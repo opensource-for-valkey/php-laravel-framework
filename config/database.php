@@ -215,46 +215,83 @@ return [
         // Valkey (GLIDE) backend — keep CACHE_STORE=redis for a zero-config swap.
         'from_redis' => env('VALKEY_FROM_REDIS', false),
 
+        // Client implementation used to talk to Valkey (GLIDE-based driver).
         'client' => env('VALKEY_CLIENT', 'valkey_glide'),
 
         'options' => [
-            'cluster' => env('VALKEY_CLUSTER', env('REDIS_CLUSTER')),
-            'prefix' => env('VALKEY_PREFIX', env('REDIS_PREFIX')),
-            'persistent' => env('VALKEY_PERSISTENT', env('REDIS_PERSISTENT')),
+            // Cluster mode marker passed to the connector ("redis" or "").
+            'cluster' => env('VALKEY_CLUSTER', env('REDIS_CLUSTER', 'redis')),
+            // Key prefix applied to every command; defaults to the app slug.
+            'prefix' => env('VALKEY_PREFIX', env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-')),
+            // Whether to reuse persistent connections between requests.
+            'persistent' => env('VALKEY_PERSISTENT', env('REDIS_PERSISTENT', false)),
         ],
 
         'default' => [
+            // Full connection URL; overrides the discrete host/port keys below.
             'url' => env('VALKEY_URL', env('REDIS_URL')),
-            'host' => env('VALKEY_HOST', env('REDIS_HOST')),
+            // Hostname/IP of the Valkey primary node.
+            'host' => env('VALKEY_HOST', env('REDIS_HOST', '127.0.0.1')),
+            // ACL username (Valkey 6+); null uses the default user.
             'username' => env('VALKEY_USERNAME', env('REDIS_USERNAME')),
+            // Auth password / ACL secret.
             'password' => env('VALKEY_PASSWORD', env('REDIS_PASSWORD')),
-            'port' => env('VALKEY_PORT', env('REDIS_PORT')),
-            'database' => env('VALKEY_DB', env('REDIS_DB')),
-            'max_retries' => env('VALKEY_MAX_RETRIES', env('REDIS_MAX_RETRIES')),
-            'backoff_algorithm' => env('VALKEY_BACKOFF_ALGORITHM', env('REDIS_BACKOFF_ALGORITHM')),
-            'backoff_base' => env('VALKEY_BACKOFF_BASE', env('REDIS_BACKOFF_BASE')),
-            'backoff_cap' => env('VALKEY_BACKOFF_CAP', env('REDIS_BACKOFF_CAP')),
+            // TCP port of the Valkey server.
+            'port' => env('VALKEY_PORT', env('REDIS_PORT', '6379')),
+            // Logical database index for general connection usage.
+            'database' => env('VALKEY_DB', env('REDIS_DB', '0')),
+            // Max automatic command retries before failing.
+            'max_retries' => env('VALKEY_MAX_RETRIES', env('REDIS_MAX_RETRIES', 3)),
+            // Retry backoff strategy between attempts.
+            'backoff_algorithm' => env('VALKEY_BACKOFF_ALGORITHM', env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter')),
+            // Base backoff delay in milliseconds.
+            'backoff_base' => env('VALKEY_BACKOFF_BASE', env('REDIS_BACKOFF_BASE', 100)),
+            // Maximum backoff delay cap in milliseconds.
+            'backoff_cap' => env('VALKEY_BACKOFF_CAP', env('REDIS_BACKOFF_CAP', 1000)),
         ],
 
         'cache' => [
+            // Full connection URL; overrides the discrete host/port keys below.
             'url' => env('VALKEY_URL', env('REDIS_URL')),
-            'host' => env('VALKEY_HOST', env('REDIS_HOST')),
+            // Hostname/IP of the Valkey primary node.
+            'host' => env('VALKEY_HOST', env('REDIS_HOST', '127.0.0.1')),
+            // ACL username (Valkey 6+); null uses the default user.
             'username' => env('VALKEY_USERNAME', env('REDIS_USERNAME')),
+            // Auth password / ACL secret.
             'password' => env('VALKEY_PASSWORD', env('REDIS_PASSWORD')),
-            'port' => env('VALKEY_PORT', env('REDIS_PORT')),
-            'database' => env('VALKEY_CACHE_DB', env('REDIS_CACHE_DB')),
-            'max_retries' => env('VALKEY_MAX_RETRIES', env('REDIS_MAX_RETRIES')),
-            'backoff_algorithm' => env('VALKEY_BACKOFF_ALGORITHM', env('REDIS_BACKOFF_ALGORITHM')),
-            'backoff_base' => env('VALKEY_BACKOFF_BASE', env('REDIS_BACKOFF_BASE')),
-            'backoff_cap' => env('VALKEY_BACKOFF_CAP', env('REDIS_BACKOFF_CAP')),
+            // TCP port of the Valkey server.
+            'port' => env('VALKEY_PORT', env('REDIS_PORT', '6379')),
+            // Dedicated logical database index for the cache store.
+            'database' => env('VALKEY_CACHE_DB', env('REDIS_CACHE_DB', '1')),
+            // Max automatic command retries before failing.
+            'max_retries' => env('VALKEY_MAX_RETRIES', env('REDIS_MAX_RETRIES', 3)),
+            // Retry backoff strategy between attempts.
+            'backoff_algorithm' => env('VALKEY_BACKOFF_ALGORITHM', env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter')),
+            // Base backoff delay in milliseconds.
+            'backoff_base' => env('VALKEY_BACKOFF_BASE', env('REDIS_BACKOFF_BASE', 100)),
+            // Maximum backoff delay cap in milliseconds.
+            'backoff_cap' => env('VALKEY_BACKOFF_CAP', env('REDIS_BACKOFF_CAP', 1000)),
         ],
 
+        // Enable TLS/SSL for all connections in this group.
         'use_tls'                 => env('VALKEY_TLS', false),
-        'read_from'               => env('VALKEY_READ_FROM', 'primary'), // primary | prefer_replica | az_affinity | any
+        // Read routing policy: primary | prefer_replica | az_affinity | any.
+        'read_from'               => env('VALKEY_READ_FROM', 'primary'),
+        // Availability-zone affinity for same-AZ replica reads. Takes effect
+        // when read_from is "az_affinity"; set the AZ your app runs in.
+        'az_affinity' => [
+            'enabled' => env('VALKEY_AZ_AFFINITY', false),
+            'az'      => env('VALKEY_AZ'),
+        ],
+        // Per-request timeout in milliseconds.
         'request_timeout'         => env('VALKEY_REQUEST_TIMEOUT', 250),
+        // Connection establishment timeout in milliseconds.
         'connection_timeout'      => env('VALKEY_CONNECTION_TIMEOUT', 250),
+        // Optional client name reported to the server (CLIENT SETNAME).
         'client_name'             => env('VALKEY_CLIENT_NAME'),
+        // Defer connecting until the first command is issued.
         'lazy_connect'            => env('VALKEY_LAZY_CONNECT', false),
+        // Cap on concurrent in-flight requests per connection.
         'inflight_requests_limit' => env('VALKEY_INFLIGHT_LIMIT', 1000),
 
         /*
@@ -267,12 +304,6 @@ return [
         | Valkey-native capabilities — all are optional and default off/unset.
         | Add any of these keys to a connection array to enable them:
         |
-        |
-        | // Availability-zone affinity (same-AZ replica reads)
-        | 'az_affinity' => [
-        |     'enabled' => env('VALKEY_AZ_AFFINITY', false),
-        |     'az'      => env('VALKEY_AZ'),
-        | ],
         |
         | // AWS ElastiCache / MemoryDB IAM auth
         | 'iam_config' => null, // Set to array to enable
