@@ -201,6 +201,16 @@ return [
     | equivalent, so existing Redis applications may adopt Valkey without any
     | additional configuration by setting the "VALKEY_FROM_REDIS" option.
     |
+    | The GLIDE client also exposes a handful of Valkey-native options:
+    |
+    |   VALKEY_READ_FROM    primary, prefer_replica, az_affinity, any
+    |   VALKEY_TLS          true to enable TLS/SSL for every connection
+    |   VALKEY_AZ_AFFINITY  availability zone used when read_from is "az_affinity"
+    |
+    | Further GLIDE capabilities (IAM auth, reconnect strategy, client-side
+    | caching, compression, clustering, and OpenTelemetry) may be enabled via
+    | the commented options shown below.
+    |
     */
 
     'valkey' => [
@@ -210,7 +220,7 @@ return [
         'client' => env('VALKEY_CLIENT', 'valkey_glide'),
 
         'options' => [
-            'cluster' => env('VALKEY_CLUSTER', env('REDIS_CLUSTER', 'redis')),
+            'cluster' => env('VALKEY_CLUSTER', env('REDIS_CLUSTER', 'valkey')),
             'prefix' => env('VALKEY_PREFIX', env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-')),
             'persistent' => env('VALKEY_PERSISTENT', env('REDIS_PERSISTENT', false)),
             'use_tls' => env('VALKEY_TLS', false),
@@ -243,6 +253,61 @@ return [
             'backoff_base' => env('VALKEY_BACKOFF_BASE', env('REDIS_BACKOFF_BASE', 100)),
             'backoff_cap' => env('VALKEY_BACKOFF_CAP', env('REDIS_BACKOFF_CAP', 1000)),
         ],
+
+        // The options below expose additional GLIDE capabilities. They are
+        // optional and disabled by default — uncomment any you wish to use.
+
+        // 'request_timeout' => env('VALKEY_REQUEST_TIMEOUT', 250),
+        // 'connection_timeout' => env('VALKEY_CONNECTION_TIMEOUT', 250),
+        // 'client_name' => env('VALKEY_CLIENT_NAME'),
+        // 'lazy_connect' => env('VALKEY_LAZY_CONNECT', false),
+        // 'inflight_requests_limit' => env('VALKEY_INFLIGHT_LIMIT', 1000),
+        // 'register_phpredis_aliases' => env('VALKEY_REGISTER_ALIASES', true),
+
+        // AWS ElastiCache / MemoryDB IAM authentication.
+        // 'iam_config' => null,
+
+        // Reconnect / backoff strategy.
+        // 'reconnect_strategy' => [
+        //     'num_of_retries' => env('VALKEY_RECONNECT_RETRIES', 3),
+        //     'factor' => env('VALKEY_RECONNECT_FACTOR', 2),
+        //     'exponent_base' => env('VALKEY_RECONNECT_EXP_BASE', 2),
+        // ],
+
+        // Client-side caching (server-assisted invalidation).
+        // 'client_side_cache' => [
+        //     'enabled' => env('VALKEY_CSC_ENABLED', false),
+        //     'max_size' => env('VALKEY_CSC_MAX_SIZE', 10000),
+        // ],
+
+        // Native payload compression (experimental).
+        // 'compression' => [
+        //     'enabled' => env('VALKEY_COMPRESSION', false),
+        //     'algorithm' => env('VALKEY_COMPRESSION_ALGO', 'lz4'),
+        // ],
+
+        // Cluster node definitions for multi-node deployments.
+        // 'clusters' => [
+        //     'default' => [
+        //         ['host' => '10.0.0.1', 'port' => 7000],
+        //         ['host' => '10.0.0.2', 'port' => 7001],
+        //         ['host' => '10.0.0.3', 'port' => 7002],
+        //     ],
+        //     'options' => [
+        //         'read_from' => 'prefer_replica',
+        //         'use_tls' => true,
+        //         'az_affinity' => 'us-east-1a',
+        //     ],
+        // ],
+
+        // OpenTelemetry tracing and metrics export.
+        // 'otel' => [
+        //     'enabled' => env('VALKEY_OTEL_ENABLED', false),
+        //     'endpoint' => env('VALKEY_OTEL_ENDPOINT'),
+        //     'traces' => ['enabled' => true, 'sample_percentage' => env('VALKEY_OTEL_SAMPLE_PCT', 1)],
+        //     'metrics' => ['enabled' => true],
+        //     'flush_interval_ms' => env('VALKEY_OTEL_FLUSH_MS', 5000),
+        // ],
 
     ],
 
