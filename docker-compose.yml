@@ -77,3 +77,34 @@ services:
   #     - redis-cluster-2
   #   command: sh -c 'redis-cli --cluster create redis-cluster-0:7000 redis-cluster-1:7001 redis-cluster-2:7002 --cluster-replicas 0 --cluster-yes || true'
   #   restart: no
+  valkey:
+    image: valkey/valkey:9-alpine
+    ports:
+      - "6380:6379"
+    restart: always
+  # valkey-cluster-0:
+  #   image: valkey/valkey:9-alpine
+  #   ports:
+  #     - "7100:7100"
+  #   restart: always
+  #   command: valkey-server --port 7100 --appendonly yes --cluster-enabled yes
+  # valkey-cluster-1:
+  #   image: valkey/valkey:9-alpine
+  #   ports:
+  #     - "7101:7101"
+  #   restart: always
+  #   command: valkey-server --port 7101 --appendonly yes --cluster-enabled yes
+  # valkey-cluster-2:
+  #   image: valkey/valkey:9-alpine
+  #   ports:
+  #     - "7102:7102"
+  #   restart: always
+  #   command: valkey-server --port 7102 --appendonly yes --cluster-enabled yes
+  # valkey-cluster-creator:
+  #   image: valkey/valkey:9-alpine
+  #   depends_on:
+  #     - valkey-cluster-0
+  #     - valkey-cluster-1
+  #     - valkey-cluster-2
+  #   command: sh -c 'valkey-cli --cluster create valkey-cluster-0:7100 valkey-cluster-1:7101 valkey-cluster-2:7102 --cluster-replicas 0 --cluster-yes || true'
+  #   restart: no
