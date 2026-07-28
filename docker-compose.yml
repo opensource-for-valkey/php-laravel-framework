@@ -10,24 +10,24 @@ services:
     ports:
       - "11211:11211"
     restart: always
-  mysql:
-    image: mysql/mysql-server:5.7
-    environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: 1
-      MYSQL_ROOT_PASSWORD: ""
-      MYSQL_DATABASE: "forge"
-      MYSQL_ROOT_HOST: "%"
-    ports:
-      - "3306:3306"
-    restart: always
-  # postgres:
-  #   image: postgres:15
+  # mysql:
+  #   image: mysql/mysql-server:5.7
   #   environment:
-  #     POSTGRES_PASSWORD: "secret"
-  #     POSTGRES_DB: "forge"
+  #     MYSQL_ALLOW_EMPTY_PASSWORD: 1
+  #     MYSQL_ROOT_PASSWORD: ""
+  #     MYSQL_DATABASE: "forge"
+  #     MYSQL_ROOT_HOST: "%"
   #   ports:
-  #     - "5432:5432"
+  #     - "3306:3306"
   #   restart: always
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_PASSWORD: "secret"
+      POSTGRES_DB: "forge"
+    ports:
+      - "5432:5432"
+    restart: always
   # mariadb:
   #   image: mariadb:11
   #   environment:
@@ -46,11 +46,11 @@ services:
   #   ports:
   #     - "1433:1433"
   #   restart: always
-  redis:
-    image: redis:7.0-alpine
-    ports:
-      - "6379:6379"
-    restart: always
+  # redis:
+  #   image: redis:7.0-alpine
+  #   ports:
+  #     - "6379:6379"
+  #   restart: always
   # redis-cluster-0:
   #   image: redis:7.0-alpine
   #   ports:
@@ -76,4 +76,35 @@ services:
   #     - redis-cluster-1
   #     - redis-cluster-2
   #   command: sh -c 'redis-cli --cluster create redis-cluster-0:7000 redis-cluster-1:7001 redis-cluster-2:7002 --cluster-replicas 0 --cluster-yes || true'
+  #   restart: no
+  valkey:
+    image: valkey/valkey:9-alpine
+    ports:
+      - "6380:6379"
+    restart: always
+  # valkey-cluster-0:
+  #   image: valkey/valkey:9-alpine
+  #   ports:
+  #     - "7100:7100"
+  #   restart: always
+  #   command: valkey-server --port 7100 --appendonly yes --cluster-enabled yes
+  # valkey-cluster-1:
+  #   image: valkey/valkey:9-alpine
+  #   ports:
+  #     - "7101:7101"
+  #   restart: always
+  #   command: valkey-server --port 7101 --appendonly yes --cluster-enabled yes
+  # valkey-cluster-2:
+  #   image: valkey/valkey:9-alpine
+  #   ports:
+  #     - "7102:7102"
+  #   restart: always
+  #   command: valkey-server --port 7102 --appendonly yes --cluster-enabled yes
+  # valkey-cluster-creator:
+  #   image: valkey/valkey:9-alpine
+  #   depends_on:
+  #     - valkey-cluster-0
+  #     - valkey-cluster-1
+  #     - valkey-cluster-2
+  #   command: sh -c 'valkey-cli --cluster create valkey-cluster-0:7100 valkey-cluster-1:7101 valkey-cluster-2:7102 --cluster-replicas 0 --cluster-yes || true'
   #   restart: no
