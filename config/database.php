@@ -198,4 +198,58 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Valkey Databases
+    |--------------------------------------------------------------------------
+    |
+    | Valkey is an open source, high-performance key-value store compatible
+    | with Redis. Laravel connects to it through the Valkey GLIDE extension.
+    | Each VALKEY_* variable falls back to its REDIS_* counterpart, so an
+    | existing Redis configuration is reused unless overridden here.
+    |
+    */
+
+    'valkey' => [
+
+        'options' => [
+            'prefix' => env('VALKEY_PREFIX', env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-')),
+        ],
+
+        'default' => [
+            'url' => env('VALKEY_URL', env('REDIS_URL')),
+            'host' => env('VALKEY_HOST', env('REDIS_HOST', '127.0.0.1')),
+            'username' => env('VALKEY_USERNAME', env('REDIS_USERNAME')),
+            'password' => env('VALKEY_PASSWORD', env('REDIS_PASSWORD')),
+            'port' => env('VALKEY_PORT', env('REDIS_PORT', '6379')),
+            'database' => env('VALKEY_DB', env('REDIS_DB', '0')),
+            'read_from' => env('VALKEY_READ_FROM', 'primary'),
+            'client_az' => env('VALKEY_CLIENT_AZ'),
+        ],
+
+        'cache' => [
+            'url' => env('VALKEY_URL', env('REDIS_URL')),
+            'host' => env('VALKEY_HOST', env('REDIS_HOST', '127.0.0.1')),
+            'username' => env('VALKEY_USERNAME', env('REDIS_USERNAME')),
+            'password' => env('VALKEY_PASSWORD', env('REDIS_PASSWORD')),
+            'port' => env('VALKEY_PORT', env('REDIS_PORT', '6379')),
+            'database' => env('VALKEY_CACHE_DB', env('REDIS_CACHE_DB', '1')),
+            'read_from' => env('VALKEY_READ_FROM', 'primary'),
+            'client_az' => env('VALKEY_CLIENT_AZ'),
+        ],
+
+        // 'clusters' => [
+        //     'default' => [
+        //         ['host' => '127.0.0.1', 'port' => 7100],
+        //         ['host' => '127.0.0.1', 'port' => 7101],
+        //         ['host' => '127.0.0.1', 'port' => 7102],
+        //     ],
+        //     'options' => [
+        //         'read_from' => 'prefer_replica',
+        //         'client_az' => env('VALKEY_CLIENT_AZ'),
+        //     ],
+        // ],
+
+    ],
+
 ];
